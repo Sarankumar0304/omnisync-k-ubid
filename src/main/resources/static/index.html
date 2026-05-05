@@ -1,0 +1,1698 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OmniSync-K UBID — Karnataka Interoperability Gateway</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=DM+Sans:wght@300;400;500;600;700&family=Fraunces:ital,wght@0,300;0,700;1,300&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0d1117;
+      --bg2: #161b22;
+      --bg3: #21262d;
+      --border: #30363d;
+      --border2: #484f58;
+      --text: #e6edf3;
+      --text2: #8b949e;
+      --text3: #6e7681;
+      --sws: #2f81f7;
+      --sws-soft: rgba(47,129,247,0.12);
+      --sws-border: rgba(47,129,247,0.35);
+      --dept: #f0883e;
+      --dept-soft: rgba(240,136,62,0.12);
+      --dept-border: rgba(240,136,62,0.35);
+      --omni: #3fb950;
+      --omni-soft: rgba(63,185,80,0.12);
+      --omni-border: rgba(63,185,80,0.35);
+      --warn: #d29922;
+      --warn-soft: rgba(210,153,34,0.12);
+      --red: #f85149;
+      --red-soft: rgba(248,81,73,0.12);
+      --purple: #bc8cff;
+      --purple-soft: rgba(188,140,255,0.12);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', system-ui, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      height: 60px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(13,17,23,0.95);
+      backdrop-filter: blur(12px);
+    }
+
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--omni) 0%, #1a7f37 100%);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .header-title {
+      font-family: 'Fraunces', serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.3px;
+    }
+
+    .header-sub {
+      font-size: 12px;
+      color: var(--text3);
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .header-divider { width: 1px; height: 28px; background: var(--border); }
+
+    .header-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text2);
+    }
+
+    .pulse {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--omni);
+      animation: pulse 2s infinite;
+    }
+
+    .pulse.red { background: var(--red); }
+
+    @keyframes pulse {
+      0%,100% { box-shadow: 0 0 0 0 rgba(63,185,80,0.5); }
+      50% { box-shadow: 0 0 0 5px rgba(63,185,80,0); }
+    }
+
+    .header-nav {
+      display: flex;
+      gap: 4px;
+      margin-left: auto;
+    }
+
+    .nav-btn {
+      background: none;
+      border: 1px solid transparent;
+      color: var(--text2);
+      font: inherit;
+      font-size: 13px;
+      padding: 5px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .nav-btn:hover { background: var(--bg3); color: var(--text); }
+    .nav-btn.active { background: var(--bg3); border-color: var(--border); color: var(--text); }
+
+    /* ── TOP STATS BAR ── */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .stat {
+      background: var(--bg);
+      padding: 16px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .stat-value {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    .stat-value.green { color: var(--omni); }
+    .stat-value.blue { color: var(--sws); }
+    .stat-value.orange { color: var(--dept); }
+    .stat-value.warn { color: var(--warn); }
+
+    .stat-delta {
+      font-size: 11px;
+      color: var(--text3);
+    }
+
+    /* ── MAIN 3-PANEL LAYOUT ── */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 320px 1fr 320px;
+      grid-template-rows: calc(100vh - 110px);
+      overflow: hidden;
+    }
+
+    /* ── PANELS ── */
+    .panel {
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    .panel:last-child { border-right: none; border-left: 1px solid var(--border); }
+
+    .panel-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+      z-index: 10;
+    }
+
+    .panel-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text3);
+      font-family: 'IBM Plex Mono', monospace;
+      margin-bottom: 6px;
+    }
+
+    .panel-heading {
+      font-family: 'Fraunces', serif;
+      font-size: 16px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .panel-heading .dot {
+      width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+    }
+
+    .dot-sws { background: var(--sws); box-shadow: 0 0 8px var(--sws); }
+    .dot-omni { background: var(--omni); box-shadow: 0 0 8px var(--omni); }
+    .dot-dept { background: var(--dept); box-shadow: 0 0 8px var(--dept); }
+
+    /* ── CENTER PANEL ── */
+    .center-panel {
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    /* ── SECTION ── */
+    .section {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-title {
+      font-size: 11px;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      font-family: 'IBM Plex Mono', monospace;
+      margin-bottom: 10px;
+    }
+
+    /* ── SWS PANEL CONTENT ── */
+    .business-card {
+      background: var(--bg2);
+      border: 1px solid var(--sws-border);
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .business-card:hover, .business-card.active {
+      background: var(--sws-soft);
+      border-color: var(--sws);
+    }
+
+    .biz-id {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--sws);
+      margin-bottom: 4px;
+    }
+
+    .biz-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .biz-meta {
+      font-size: 12px;
+      color: var(--text2);
+      line-height: 1.5;
+    }
+
+    .biz-meta span {
+      display: inline-block;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      color: var(--text3);
+      margin-right: 4px;
+      margin-bottom: 4px;
+    }
+
+    .field-group {
+      margin-bottom: 12px;
+    }
+
+    .field-label {
+      font-size: 11px;
+      color: var(--text3);
+      margin-bottom: 4px;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .field-input {
+      width: 100%;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 10px;
+      color: var(--text);
+      font: inherit;
+      font-size: 13px;
+      transition: border-color 0.15s;
+    }
+
+    .field-input:focus {
+      outline: none;
+      border-color: var(--sws);
+    }
+
+    select.field-input { cursor: pointer; }
+
+    .action-btn {
+      width: 100%;
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: none;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .btn-sws {
+      background: var(--sws);
+      color: #fff;
+    }
+    .btn-sws:hover { background: #388bfd; }
+    .btn-sws:disabled { opacity: 0.45; cursor: default; }
+
+    .btn-dept {
+      background: var(--dept);
+      color: #fff;
+    }
+    .btn-dept:hover { background: #f0a070; }
+    .btn-dept:disabled { opacity: 0.45; cursor: default; }
+
+    .btn-conflict {
+      background: var(--warn-soft);
+      border: 1px solid var(--warn);
+      color: var(--warn);
+    }
+    .btn-conflict:hover { background: var(--warn); color: #fff; }
+    .btn-conflict:disabled { opacity: 0.45; cursor: default; }
+
+    .btn-ghost {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--text2);
+    }
+    .btn-ghost:hover { border-color: var(--border2); color: var(--text); }
+
+    /* ── FLOW STEPS ── */
+    .flow-container {
+      padding: 0 20px 16px;
+    }
+
+    .flow-step {
+      display: flex;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      animation: slideIn 0.3s ease forwards;
+      opacity: 0;
+    }
+
+    .flow-step:last-child { border-bottom: none; }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-8px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .step-num {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: var(--omni-soft);
+      border: 1px solid var(--omni-border);
+      color: var(--omni);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      flex-shrink: 0;
+      font-family: 'IBM Plex Mono', monospace;
+      margin-top: 2px;
+    }
+
+    .step-body strong {
+      display: block;
+      font-size: 13px;
+      color: var(--text);
+      margin-bottom: 3px;
+    }
+
+    .step-body span {
+      font-size: 12px;
+      color: var(--text2);
+      line-height: 1.4;
+    }
+
+    /* ── ARCHITECTURE DIAGRAM ── */
+    .arch-diagram {
+      padding: 20px;
+    }
+
+    .arch-flow {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .arch-node {
+      border-radius: 10px;
+      padding: 14px 16px;
+      position: relative;
+    }
+
+    .arch-node.sws-node {
+      background: var(--sws-soft);
+      border: 1px solid var(--sws-border);
+    }
+
+    .arch-node.omni-node {
+      background: var(--omni-soft);
+      border: 1px solid var(--omni-border);
+      margin: 0;
+    }
+
+    .arch-node.dept-node {
+      background: var(--dept-soft);
+      border: 1px solid var(--dept-border);
+    }
+
+    .arch-node-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      font-family: 'IBM Plex Mono', monospace;
+      margin-bottom: 6px;
+    }
+
+    .arch-node.sws-node .arch-node-label { color: var(--sws); }
+    .arch-node.omni-node .arch-node-label { color: var(--omni); }
+    .arch-node.dept-node .arch-node-label { color: var(--dept); }
+
+    .arch-node-title {
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+
+    .arch-node-desc {
+      font-size: 12px;
+      color: var(--text2);
+      line-height: 1.5;
+    }
+
+    .arch-arrow {
+      display: flex;
+      align-items: center;
+      padding: 8px 24px;
+      gap: 10px;
+    }
+
+    .arrow-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border2);
+      position: relative;
+    }
+
+    .arrow-line::after {
+      content: '';
+      position: absolute;
+      right: -1px; top: -4px;
+      width: 0; height: 0;
+      border-left: 8px solid var(--border2);
+      border-top: 4px solid transparent;
+      border-bottom: 4px solid transparent;
+    }
+
+    .arrow-label {
+      font-size: 11px;
+      color: var(--text3);
+      font-family: 'IBM Plex Mono', monospace;
+      white-space: nowrap;
+    }
+
+    .arrow-both {
+      text-align: center;
+      font-size: 11px;
+      color: var(--omni);
+      font-family: 'IBM Plex Mono', monospace;
+      padding: 6px 0;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── CHIPS ── */
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .chip.green { background: var(--omni-soft); color: var(--omni); border: 1px solid var(--omni-border); }
+    .chip.blue { background: var(--sws-soft); color: var(--sws); border: 1px solid var(--sws-border); }
+    .chip.orange { background: var(--dept-soft); color: var(--dept); border: 1px solid var(--dept-border); }
+    .chip.warn { background: var(--warn-soft); color: var(--warn); border: 1px solid rgba(210,153,34,0.4); }
+    .chip.red { background: var(--red-soft); color: var(--red); border: 1px solid rgba(248,81,73,0.4); }
+    .chip.purple { background: var(--purple-soft); color: var(--purple); border: 1px solid rgba(188,140,255,0.4); }
+
+    /* ── RESULT CARDS ── */
+    .result-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      animation: fadeIn 0.3s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-card.success { border-left: 3px solid var(--omni); }
+    .result-card.failed { border-left: 3px solid var(--red); }
+    .result-card.conflict { border-left: 3px solid var(--warn); }
+
+    .result-icon {
+      width: 28px; height: 28px;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .result-icon.success { background: var(--omni-soft); }
+    .result-icon.failed { background: var(--red-soft); }
+    .result-icon.conflict { background: var(--warn-soft); }
+
+    .result-body { flex: 1; min-width: 0; }
+    .result-name { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+    .result-meta { font-size: 11px; color: var(--text2); font-family: 'IBM Plex Mono', monospace; line-height: 1.5; }
+
+    /* ── AUDIT LEDGER ── */
+    .ledger-table {
+      width: 100%;
+    }
+
+    .ledger-row {
+      display: grid;
+      grid-template-columns: 80px 120px 1fr 80px;
+      gap: 8px;
+      padding: 10px 20px;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+      align-items: center;
+      animation: slideIn 0.2s ease forwards;
+      opacity: 0;
+    }
+
+    .ledger-row:nth-child(odd) { animation-delay: 0.05s; }
+    .ledger-row:nth-child(even) { animation-delay: 0.1s; }
+
+    .ledger-row.header {
+      background: var(--bg2);
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text3);
+      font-family: 'IBM Plex Mono', monospace;
+      opacity: 1;
+      animation: none;
+    }
+
+    .ledger-time { font-family: 'IBM Plex Mono', monospace; color: var(--text3); font-size: 11px; }
+    .ledger-ubid { font-family: 'IBM Plex Mono', monospace; color: var(--sws); font-size: 11px; }
+    .ledger-event { color: var(--text); }
+    .ledger-desc { color: var(--text2); font-size: 11px; }
+
+    /* ── DEPT PANEL ── */
+    .dept-system {
+      background: var(--bg2);
+      border: 1px solid var(--dept-border);
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 10px;
+    }
+
+    .dept-system-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+
+    .dept-system-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .dept-system-protocol {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      color: var(--dept);
+    }
+
+    .dept-system-discovery {
+      font-size: 11px;
+      color: var(--text3);
+      margin-top: 6px;
+    }
+
+    .dept-system-discovery strong {
+      color: var(--text2);
+    }
+
+    /* ── EMPTY STATE ── */
+    .empty {
+      text-align: center;
+      padding: 32px 20px;
+      color: var(--text3);
+      font-size: 13px;
+    }
+
+    .empty svg { display: block; margin: 0 auto 12px; opacity: 0.3; }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    /* ── TAB SWITCHER ── */
+    .tab-bar {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+      position: sticky;
+      top: 56px;
+      z-index: 9;
+      overflow-x: auto;
+    }
+
+    .tab {
+      padding: 10px 18px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text3);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      white-space: nowrap;
+      transition: all 0.15s;
+      background: none;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .tab:hover { color: var(--text2); }
+    .tab.active { color: var(--omni); border-bottom-color: var(--omni); }
+
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* ── SCHEMA VIEWER ── */
+    .schema-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1px;
+      background: var(--border);
+    }
+
+    .schema-pane {
+      background: var(--bg);
+      padding: 16px 20px;
+    }
+
+    .schema-pane-title {
+      font-size: 11px;
+      color: var(--text3);
+      font-family: 'IBM Plex Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    pre {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--text2);
+      white-space: pre-wrap;
+      word-break: break-all;
+      line-height: 1.6;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      max-height: 320px;
+      overflow-y: auto;
+    }
+
+    /* ── OMNI CENTER ── */
+    .omni-header {
+      background: linear-gradient(180deg, rgba(63,185,80,0.08) 0%, transparent 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 24px 28px 20px;
+    }
+
+    .omni-title {
+      font-family: 'Fraunces', serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .omni-subtitle {
+      font-size: 13px;
+      color: var(--text2);
+      line-height: 1.5;
+      max-width: 560px;
+    }
+
+    .scenario-bar {
+      display: flex;
+      gap: 10px;
+      padding: 14px 28px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg2);
+    }
+
+    .scenario-btn {
+      flex: 1;
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      background: var(--bg3);
+      color: var(--text2);
+    }
+
+    .scenario-btn:hover { border-color: var(--border2); color: var(--text); }
+    .scenario-btn.sws-btn { color: var(--sws); border-color: var(--sws-border); }
+    .scenario-btn.sws-btn:hover { background: var(--sws-soft); }
+    .scenario-btn.dept-btn { color: var(--dept); border-color: var(--dept-border); }
+    .scenario-btn.dept-btn:hover { background: var(--dept-soft); }
+    .scenario-btn.conflict-btn { color: var(--warn); border-color: rgba(210,153,34,0.4); }
+    .scenario-btn.conflict-btn:hover { background: var(--warn-soft); }
+    .scenario-btn:disabled { opacity: 0.4; cursor: default; }
+
+    .inputs-row {
+      display: grid;
+      grid-template-columns: 160px 200px 1fr 1fr;
+      gap: 10px;
+      padding: 14px 28px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .inputs-row .field-label { color: var(--text3); font-size: 10px; }
+    .inputs-row .field-input { font-size: 12px; }
+
+    /* ── FLOW PIPELINE ── */
+    .pipeline {
+      padding: 20px 28px;
+    }
+
+    .pipeline-track {
+      display: flex;
+      gap: 0;
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .pipeline-track::before {
+      content: '';
+      position: absolute;
+      top: 16px; left: 20px; right: 20px;
+      height: 2px;
+      background: var(--border);
+      z-index: 0;
+    }
+
+    .pipe-step {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .pipe-circle {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--bg3);
+      border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      font-family: 'IBM Plex Mono', monospace;
+      color: var(--text3);
+      transition: all 0.3s;
+    }
+
+    .pipe-circle.active {
+      background: var(--omni-soft);
+      border-color: var(--omni);
+      color: var(--omni);
+      box-shadow: 0 0 12px rgba(63,185,80,0.3);
+    }
+
+    .pipe-circle.done {
+      background: var(--omni);
+      border-color: var(--omni);
+      color: #fff;
+    }
+
+    .pipe-label {
+      font-size: 10px;
+      color: var(--text3);
+      text-align: center;
+      line-height: 1.3;
+      max-width: 90px;
+    }
+
+    .pipe-label.active { color: var(--text2); }
+    .pipe-label.done { color: var(--omni); }
+
+    /* ── RESULTS GRID ── */
+    .results-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding: 0 28px 20px;
+    }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 18px;
+      font-size: 13px;
+      color: var(--text);
+      z-index: 999;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: all 0.2s;
+      pointer-events: none;
+      max-width: 300px;
+    }
+
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    /* ── HOW IT WORKS ── */
+    .how-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+    }
+
+    .how-card {
+      background: var(--bg);
+      padding: 24px 28px;
+    }
+
+    .how-number {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 32px;
+      font-weight: 600;
+      color: var(--omni);
+      margin-bottom: 12px;
+      opacity: 0.4;
+    }
+
+    .how-title {
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .how-desc {
+      font-size: 13px;
+      color: var(--text2);
+      line-height: 1.6;
+    }
+
+    /* ── STREAM LOG ── */
+    .stream-log {
+      background: var(--bg);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      max-height: 200px;
+      overflow-y: auto;
+      border-top: 1px solid var(--border);
+    }
+
+    .log-line {
+      display: grid;
+      grid-template-columns: 70px 50px 1fr;
+      gap: 10px;
+      padding: 6px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      color: var(--text2);
+    }
+
+    .log-line:first-child { color: var(--text); }
+
+    .log-line b.INFO { color: var(--sws); }
+    .log-line b.SYNC { color: var(--omni); }
+    .log-line b.WARN { color: var(--warn); }
+    .log-line b.ERR { color: var(--red); }
+
+    /* ── CONFLICT BOX ── */
+    .conflict-box {
+      background: var(--warn-soft);
+      border: 1px solid rgba(210,153,34,0.4);
+      border-radius: 8px;
+      padding: 14px;
+      margin: 0 28px 20px;
+    }
+
+    .conflict-title {
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--warn);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .conflict-body {
+      font-size: 12px;
+      color: var(--text2);
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-logo">
+    <div class="logo-icon">⟳</div>
+    <div>
+      <div class="header-title">OmniSync-K UBID</div>
+      <div class="header-sub">Karnataka Interoperability Gateway</div>
+    </div>
+  </div>
+  <div class="header-divider"></div>
+  <div class="header-status">
+    <div class="pulse" id="api-pulse"></div>
+    <span id="api-state">Connecting...</span>
+  </div>
+  <div class="header-nav">
+    <button class="nav-btn active" onclick="showView('dashboard')">Dashboard</button>
+    <button class="nav-btn" onclick="showView('howit')">How It Works</button>
+    <button class="nav-btn" onclick="showView('schema')">Schema Translation</button>
+    <button class="nav-btn" onclick="showView('audit-view')">Audit Trail</button>
+  </div>
+</header>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stat">
+    <div class="stat-label">Audit Entries</div>
+    <div class="stat-value green" id="m-total">—</div>
+    <div class="stat-delta">Total propagations logged</div>
+  </div>
+  <div class="stat">
+    <div class="stat-label">Successful Syncs</div>
+    <div class="stat-value blue" id="m-success">—</div>
+    <div class="stat-delta">SWS ↔ Department writes</div>
+  </div>
+  <div class="stat">
+    <div class="stat-label">Conflicts Resolved</div>
+    <div class="stat-value warn" id="m-conflict">—</div>
+    <div class="stat-delta">With full audit reason</div>
+  </div>
+  <div class="stat">
+    <div class="stat-label">Success Rate</div>
+    <div class="stat-value green" id="m-rate">—</div>
+    <div class="stat-delta" id="m-updated">Last refreshed now</div>
+  </div>
+</div>
+
+<!-- ===== DASHBOARD VIEW ===== -->
+<div id="view-dashboard" class="view active">
+  <div class="main-grid">
+
+    <!-- LEFT: SWS PANEL -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">System 1</div>
+        <div class="panel-heading"><div class="dot dot-sws"></div> Single Window System</div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Select Business (UBID)</div>
+        <div id="biz-list"></div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Request Type</div>
+        <div class="field-group">
+          <div class="field-label">Event to raise</div>
+          <select class="field-input" id="event-type">
+            <option value="ADDRESS_UPDATE">Address Update</option>
+            <option value="SIGNATORY_CHANGE">Authorised Signatory Change</option>
+            <option value="CONTACT_UPDATE">Contact Details Update</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <div class="field-label">New registered address</div>
+          <input class="field-input" id="address-line" value="12 MG Road, Bengaluru">
+        </div>
+        <div class="field-group">
+          <div class="field-label">Authorised signatory</div>
+          <input class="field-input" id="signatory" value="Rajesh Kumar">
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">SWS Actions</div>
+        <button class="action-btn btn-sws" id="run-sws">
+          ↗ Push SWS change to Departments
+        </button>
+        <button class="action-btn btn-conflict" id="run-conflict">
+          ⚡ Simulate Conflict (both sources)
+        </button>
+      </div>
+
+      <div class="section">
+        <div class="section-title">About SWS</div>
+        <p style="font-size:12px;color:var(--text2);line-height:1.6;">
+          Karnataka's canonical front door for new business registrations. When a business updates its registered address here, <strong style="color:var(--text);">OmniSync-K UBID</strong> propagates the change to every matching department system — without modifying any source system.
+        </p>
+      </div>
+    </div>
+
+    <!-- CENTER: OMNISYNC -->
+    <div class="center-panel">
+      <div id="center-dashboard">
+
+        <div class="omni-header">
+          <div class="omni-title">
+            <div class="logo-icon" style="width:28px;height:28px;font-size:14px;">⟳</div>
+            OmniSync-K UBID Middleware
+          </div>
+          <div class="omni-subtitle">
+            A federated interoperability gateway using <span style="color:var(--omni);font-family:'IBM Plex Mono',monospace;">UBID</span> as the common join key. Propagates service requests both ways — SWS to Departments and Departments to SWS — with idempotency, conflict detection, and a complete audit trail.
+          </div>
+        </div>
+
+        <!-- PIPELINE VISUALISER -->
+        <div class="pipeline">
+          <div class="section-title">Live Propagation Pipeline</div>
+          <div class="pipeline-track">
+            <div class="pipe-step">
+              <div class="pipe-circle" id="pipe-1">1</div>
+              <div class="pipe-label" id="pipe-1-lbl">Event Received</div>
+            </div>
+            <div class="pipe-step">
+              <div class="pipe-circle" id="pipe-2">2</div>
+              <div class="pipe-label" id="pipe-2-lbl">UBID Lookup</div>
+            </div>
+            <div class="pipe-step">
+              <div class="pipe-circle" id="pipe-3">3</div>
+              <div class="pipe-label" id="pipe-3-lbl">Idempotency Check</div>
+            </div>
+            <div class="pipe-step">
+              <div class="pipe-circle" id="pipe-4">4</div>
+              <div class="pipe-label" id="pipe-4-lbl">Schema Translation</div>
+            </div>
+            <div class="pipe-step">
+              <div class="pipe-circle" id="pipe-5">5</div>
+              <div class="pipe-label" id="pipe-5-lbl">Writes + Audit</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FLOW STEPS -->
+        <div class="section-title" style="padding:0 28px 10px;"></div>
+        <div class="flow-container" id="flow-steps">
+          <div class="empty">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            Run a scenario to see the propagation pipeline in action
+          </div>
+        </div>
+
+        <!-- RESULTS -->
+        <div class="results-grid" id="results-grid"></div>
+
+        <!-- CONFLICT BOX (hidden by default) -->
+        <div class="conflict-box" id="conflict-box" style="display:none;">
+          <div class="conflict-title">⚡ Conflict Detected & Resolved</div>
+          <div class="conflict-body" id="conflict-detail"></div>
+        </div>
+
+        <!-- STREAM LOG -->
+        <div class="stream-log" id="stream">
+          <div class="log-line"><span style="color:var(--text3);">now</span><b class="INFO">INFO</b><span>OmniSync-K UBID ready — run a scenario to begin</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: DEPARTMENT PANEL -->
+    <div class="panel" style="border-left:1px solid var(--border);border-right:none;">
+      <div class="panel-header">
+        <div class="panel-title">System 3 — 40+ Legacy Systems</div>
+        <div class="panel-heading"><div class="dot dot-dept"></div> Department Systems</div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Department to notify</div>
+        <div class="field-group">
+          <div class="field-label">Source department</div>
+          <select class="field-input" id="department">
+            <option value="shops_establishment">Shops & Establishments</option>
+            <option value="factories">Factories Department</option>
+            <option value="gst">GST Department</option>
+            <option value="labour">Labour Department</option>
+          </select>
+        </div>
+        <button class="action-btn btn-dept" id="run-dept">
+          ↙ Push Dept change to SWS
+        </button>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Registered Department Systems</div>
+        <div id="dept-list"></div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">About Department Systems</div>
+        <p style="font-size:12px;color:var(--text2);line-height:1.6;">
+          40+ legacy systems with different schemas, identifiers, and protocols. OmniSync-K discovers changes via <strong style="color:var(--text);">webhook, polling, or snapshot diff</strong> — no source system code changes required.
+        </p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== HOW IT WORKS VIEW ===== -->
+<div id="view-howit" class="view">
+  <div style="padding:32px 40px;max-width:1200px;margin:0 auto;">
+    <div style="margin-bottom:32px;">
+      <div style="font-family:'Fraunces',serif;font-size:32px;font-weight:700;color:var(--text);margin-bottom:8px;">How OmniSync-K UBID Works</div>
+      <div style="font-size:14px;color:var(--text2);max-width:680px;line-height:1.6;">
+        Karnataka's Single Window System and 40+ department systems cannot be modified. OmniSync-K sits in the middle, using UBID as the universal join key to propagate changes in both directions.
+      </div>
+    </div>
+
+    <!-- ARCHITECTURE DIAGRAM INLINE -->
+    <div style="display:grid;grid-template-columns:1fr 140px 1fr 140px 1fr;gap:0;align-items:center;margin-bottom:32px;">
+      <div class="arch-node sws-node">
+        <div class="arch-node-label">System 1</div>
+        <div class="arch-node-title">Single Window System (SWS)</div>
+        <div class="arch-node-desc">Karnataka's canonical front door. Business registers change here. Integrated via existing REST API — no source changes.</div>
+        <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;">
+          <span class="chip blue">REST API</span>
+          <span class="chip blue">Canonical Schema</span>
+        </div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:20px;color:var(--omni);">⟷</div>
+        <div style="font-size:10px;color:var(--text3);font-family:'IBM Plex Mono',monospace;margin-top:4px;">UBID</div>
+      </div>
+      <div class="arch-node omni-node">
+        <div class="arch-node-label">System 2 — OmniSync-K UBID</div>
+        <div class="arch-node-title">Federated Gateway Middleware</div>
+        <div class="arch-node-desc">Stateless mediation layer. Translates schemas, manages idempotency, detects conflicts, and writes an append-only audit trail for every propagation.</div>
+        <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;">
+          <span class="chip green">Spring Boot</span>
+          <span class="chip green">Kafka Bus</span>
+          <span class="chip green">Redis</span>
+          <span class="chip green">PostgreSQL Audit</span>
+        </div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:20px;color:var(--omni);">⟷</div>
+        <div style="font-size:10px;color:var(--text3);font-family:'IBM Plex Mono',monospace;margin-top:4px;">UBID</div>
+      </div>
+      <div class="arch-node dept-node">
+        <div class="arch-node-label">System 3 — 40+ Systems</div>
+        <div class="arch-node-title">Department Systems</div>
+        <div class="arch-node-desc">Each with its own schema, identifiers, and APIs. Shops & Establishments (SOAP), Factories (SQL API), GST (REST), Labour (REST). Change discovery via webhook, polling, or snapshot diff.</div>
+        <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;">
+          <span class="chip orange">SOAP/XML</span>
+          <span class="chip orange">SQL API</span>
+          <span class="chip orange">REST JSON</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="how-grid">
+      <div class="how-card">
+        <div class="how-number">01</div>
+        <div class="how-title">Direction 1 — SWS to Departments</div>
+        <div class="how-desc">When a business updates its registered address in SWS, OmniSync receives the canonical event. It uses UBID to identify matching records in every department system, translates the payload using per-department schema adapters (SOAP/XML for Shops, SQL for Factories, REST for GST), and confirms each write with a correlation ID. Retries are idempotent — the same change arriving twice will never produce a duplicate write.</div>
+      </div>
+      <div class="how-card">
+        <div class="how-number">02</div>
+        <div class="how-title">Direction 2 — Departments to SWS</div>
+        <div class="how-desc">When a department system updates a record directly (e.g. Factories changes the authorised signatory), OmniSync discovers the change through the best available surface — a webhook if the system emits one, or a scheduled sidecar poller that compares snapshots for silent systems. The change is translated into the SWS canonical format, joined on UBID, and written back to SWS with a full audit entry.</div>
+      </div>
+      <div class="how-card">
+        <div class="how-number">03</div>
+        <div class="how-title">Conflict Detection & Resolution</div>
+        <div class="how-desc">When two updates for the same UBID arrive from different sources within a short window (configurable, default 5 seconds), OmniSync detects the conflict and applies a clear resolution policy: SWS wins on canonical identity fields (registered address), while department-owned operational fields (authorised signatory) can be merged. Every decision is written to the audit ledger with the reason, so the final state is always explainable and reversible.</div>
+      </div>
+    </div>
+
+    <div style="margin-top:32px;padding:24px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;">
+      <div style="font-weight:700;font-size:15px;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+        <span style="color:var(--omni);">🏛</span> Karnataka Sample Scenario
+      </div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.8;">
+        <strong style="color:var(--sws);">Step 1 — SWS address update:</strong> Business <span style="font-family:'IBM Plex Mono',monospace;color:var(--omni);">KA-BIZ-00192</span> updates its registered address to <em>12 MG Road, Bengaluru</em> in SWS. OmniSync picks up the event, looks up the UBID in its adapter registry, and propagates the change to Shops & Establishments (as SOAP/XML) and Factories (as SQL UPDATE). Both writes are confirmed and logged.<br><br>
+        <strong style="color:var(--dept);">Step 2 — Dept signatory update:</strong> The Factories system directly updates the authorised signatory to <em>Rajesh Kumar</em>. OmniSync's sidecar poller detects the delta on the next polling cycle, translates the Factories-specific payload back to SWS canonical format, and writes the update to SWS — identified by UBID.<br><br>
+        <strong style="color:var(--warn);">Step 3 — Conflict:</strong> Two updates for <span style="font-family:'IBM Plex Mono',monospace;color:var(--omni);">KA-BIZ-00192</span> arrive nearly simultaneously — SWS changes address, Factories changes signatory. OmniSync detects the conflict window, applies the merge policy (SWS wins address; Factories wins signatory), writes both to the canonical record, and records the resolution decision in the audit trail.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SCHEMA TRANSLATION VIEW ===== -->
+<div id="view-schema" class="view">
+  <div style="padding:24px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px;">
+    <div>
+      <div style="font-family:'Fraunces',serif;font-size:20px;font-weight:700;">Schema Translation Preview</div>
+      <div style="font-size:13px;color:var(--text2);margin-top:4px;">One canonical SWS payload translated into department-specific formats without modifying any target system.</div>
+    </div>
+    <select class="field-input" id="schema-dept" style="width:220px;margin-left:auto;">
+      <option value="shops_establishment">Shops & Establishments (SOAP)</option>
+      <option value="factories">Factories Department (SQL API)</option>
+      <option value="gst">GST Department (REST JSON)</option>
+      <option value="labour">Labour Department (REST JSON)</option>
+    </select>
+  </div>
+  <div class="schema-grid">
+    <div class="schema-pane">
+      <div class="schema-pane-title"><span class="chip blue">SWS</span> Canonical SWS Event</div>
+      <pre id="schema-input"></pre>
+    </div>
+    <div class="schema-pane">
+      <div class="schema-pane-title"><span class="chip green">OMNISYNC</span> mapping.json adapter</div>
+      <pre id="schema-map"></pre>
+    </div>
+    <div class="schema-pane">
+      <div class="schema-pane-title"><span class="chip orange">DEPT</span> Translated target payload</div>
+      <pre id="schema-output"></pre>
+    </div>
+  </div>
+  <div style="padding:20px 28px;background:var(--bg2);border-top:1px solid var(--border);">
+    <div style="font-size:12px;color:var(--text2);line-height:1.6;max-width:800px;">
+      <strong style="color:var(--text);">How adapters work:</strong> Each department has a <code style="font-family:'IBM Plex Mono',monospace;color:var(--omni);">mapping.json</code> that maps canonical SWS field paths to department-specific field names. The OmniSync adapter layer reads this at runtime — no code changes needed to onboard a new department. SOAP/XML, SQL API, and REST JSON targets each have their own serialisation strategy, but the same canonical input flows in.
+    </div>
+  </div>
+</div>
+
+<!-- ===== AUDIT TRAIL VIEW ===== -->
+<div id="view-audit-view" class="view">
+  <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;background:var(--bg2);">
+    <div style="font-family:'Fraunces',serif;font-size:18px;font-weight:700;">Append-Only Audit Ledger</div>
+    <div style="font-size:12px;color:var(--text2);margin-right:auto;">Answers: what changed, where it came from, where it was written, and whether any conflict was resolved.</div>
+    <input class="field-input" id="audit-ubid" value="KA-BIZ-00192" style="width:160px;">
+    <button class="action-btn btn-sws" id="load-ubid" style="width:auto;padding:8px 14px;margin:0;">Filter UBID</button>
+    <button class="action-btn btn-ghost" id="load-all" style="width:auto;padding:8px 14px;margin:0;">Show All</button>
+  </div>
+  <div class="ledger-table" id="ledger"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const API = "/api/v1/omnisync";
+  const $ = id => document.getElementById(id);
+
+  // ── DATA ──
+  const businesses = [
+    { ubid: "KA-BIZ-00192", name: "Bengaluru Textile Works Pvt Ltd", type: "Manufacturing", address: "12 MG Road, Bengaluru", pin: "560001" },
+    { ubid: "KA-BIZ-00387", name: "Karnataka Agro Processing Ltd", type: "Food Processing", address: "44 Industrial Area, Mysuru", pin: "570010" },
+    { ubid: "KA-BIZ-01024", name: "Shree Infra Developers", type: "Construction", address: "7 Whitefield Road, Bengaluru", pin: "560066" }
+  ];
+
+  let selectedUbid = businesses[0].ubid;
+
+  const departments = [
+    { id: "shops_establishment", name: "Shops & Establishments", protocol: "SOAP/XML", discovery: "Polling", health: "Healthy" },
+    { id: "factories", name: "Factories Department", protocol: "SQL API", discovery: "Polling + snapshot diff", health: "Healthy" },
+    { id: "gst", name: "GST Department", protocol: "REST JSON", discovery: "Webhook", health: "Healthy" },
+    { id: "labour", name: "Labour Department", protocol: "REST JSON", discovery: "Polling", health: "Healthy" }
+  ];
+
+  const schemas = {
+    shops_establishment: {
+      map: { department: "shops_establishment", protocol: "SOAP/XML", field_map: {
+        "ubid": "EstabRegNo via UBID index",
+        "registered_address.line1": "NewAddress.AddressLine1",
+        "registered_address.city": "NewAddress.City",
+        "registered_address.pin": "NewAddress.PINCode"
+      }},
+      output: `<UpdateEstablishmentAddress>\n  <EstabRegNo>SE-KA-00192</EstabRegNo>\n  <NewAddress>\n    <AddressLine1>12 MG Road, Bengaluru</AddressLine1>\n    <City>Bengaluru</City>\n    <PINCode>560001</PINCode>\n  </NewAddress>\n  <ModifiedBy>OMNISYNC_GATEWAY</ModifiedBy>\n  <IdempotencyKey>SWS-00192-ADDR-20260504</IdempotencyKey>\n</UpdateEstablishmentAddress>`
+    },
+    factories: {
+      map: { department: "factories", protocol: "SQL_API", field_map: {
+        "ubid": "factory_ubid",
+        "registered_address.line1": "address_line1",
+        "authorised_signatory": "authorised_signatory_name"
+      }},
+      output: `UPDATE factory_registrations\nSET address_line1 = '12 MG Road, Bengaluru',\n    authorised_signatory_name = 'Rajesh Kumar',\n    modified_by = 'OMNISYNC_GATEWAY',\n    idempotency_key = 'SWS-00192-ADDR-20260504'\nWHERE factory_ubid = 'KA-BIZ-00192';`
+    },
+    gst: {
+      map: { department: "gst", protocol: "REST", field_map: {
+        "ubid": "gstin via UBID-to-GSTIN index",
+        "registered_address.line1": "core_business_details.prncipalPlaceBusiness.addrBnm",
+        "registered_address.pin": "core_business_details.prncipalPlaceBusiness.addrPncd"
+      }},
+      output: JSON.stringify({ gstin: "29AABCT1332L1ZK", update_type: "PRINCIPAL_ADDRESS", idempotency_key: "SWS-00192-ADDR-20260504", core_business_details: { prncipalPlaceBusiness: { addrBnm: "12 MG Road, Bengaluru", addrPncd: "560001" }}}, null, 2)
+    },
+    labour: {
+      map: { department: "labour", protocol: "REST", field_map: {
+        "ubid": "establishment_ubid",
+        "registered_address.line1": "office_address",
+        "authorised_signatory": "contact_person"
+      }},
+      output: JSON.stringify({ establishment_ubid: "KA-BIZ-00192", office_address: "12 MG Road, Bengaluru", contact_person: "Rajesh Kumar", idempotency_key: "SWS-00192-ADDR-20260504" }, null, 2)
+    }
+  };
+
+  // ── VIEW SWITCHER ──
+  function showView(name) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    $('view-' + name).classList.add('active');
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    const btnMap = { dashboard: 0, howit: 1, schema: 2, 'audit-view': 3 };
+    document.querySelectorAll('.nav-btn')[btnMap[name]]?.classList.add('active');
+    if (name === 'schema') renderSchema();
+    if (name === 'audit-view') loadAllAudit();
+  }
+
+  // ── RENDER BUSINESSES ──
+  function renderBizList() {
+    $('biz-list').innerHTML = businesses.map(b => `
+      <div class="business-card ${b.ubid === selectedUbid ? 'active' : ''}" onclick="selectBiz('${b.ubid}')">
+        <div class="biz-id">${b.ubid}</div>
+        <div class="biz-name">${b.name}</div>
+        <div class="biz-meta">
+          <span>${b.type}</span>
+          <span>${b.pin}</span>
+          <div style="margin-top:4px;color:var(--text2);">${b.address}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function selectBiz(ubid) {
+    selectedUbid = ubid;
+    renderBizList();
+    const biz = businesses.find(b => b.ubid === ubid);
+    if (biz) $('address-line').value = biz.address;
+    toast('Selected: ' + ubid);
+  }
+
+  // ── RENDER DEPARTMENTS ──
+  function renderDeptList() {
+    $('dept-list').innerHTML = departments.map(d => `
+      <div class="dept-system">
+        <div class="dept-system-header">
+          <div>
+            <div class="dept-system-name">${d.name}</div>
+            <div class="dept-system-protocol">${d.protocol} adapter</div>
+          </div>
+          <span class="chip green">${d.health}</span>
+        </div>
+        <div class="dept-system-discovery">
+          <strong>Change discovery:</strong> ${d.discovery}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // ── PIPELINE ANIMATION ──
+  function resetPipeline() {
+    for (let i = 1; i <= 5; i++) {
+      const c = $('pipe-' + i), l = $('pipe-' + i + '-lbl');
+      c.className = 'pipe-circle';
+      l.className = 'pipe-label';
+    }
+  }
+
+  function activatePipe(step) {
+    return new Promise(resolve => {
+      const c = $('pipe-' + step), l = $('pipe-' + step + '-lbl');
+      c.classList.add('active');
+      l.classList.add('active');
+      setTimeout(() => {
+        c.classList.remove('active');
+        c.classList.add('done');
+        c.textContent = '✓';
+        l.classList.add('done');
+        resolve();
+      }, 500);
+    });
+  }
+
+  // ── FLOW STEPS ──
+  function addFlowStep(title, detail, idx) {
+    if (idx === 0) $('flow-steps').innerHTML = '';
+    const row = document.createElement('div');
+    row.className = 'flow-step';
+    row.style.animationDelay = (idx * 100) + 'ms';
+    row.innerHTML = `<div class="step-num">${idx+1}</div><div class="step-body"><strong>${title}</strong><span>${detail}</span></div>`;
+    $('flow-steps').appendChild(row);
+  }
+
+  // ── RESULTS ──
+  function renderResults(response) {
+    const results = response.departmentResults?.length
+      ? response.departmentResults
+      : [{ departmentName: "Single Window System", departmentId: "sws", status: response.status, message: response.message }];
+
+    $('results-grid').innerHTML = results.map(r => {
+      const ok = r.status === 'SUCCESS';
+      const cls = ok ? 'success' : r.status === 'SKIPPED' ? '' : 'failed';
+      const icon = ok ? '✓' : r.status === 'SKIPPED' ? '—' : '✗';
+      return `<div class="result-card ${cls}">
+        <div class="result-icon ${cls}">${icon}</div>
+        <div class="result-body">
+          <div class="result-name">${r.departmentName || r.departmentId}</div>
+          <div class="result-meta">${r.message || 'Processed'}<br>Code: ${r.responseCode || '200'} · ${r.idempotencyKey ? 'Key: ' + r.idempotencyKey.substring(0,20) + '…' : 'Correlation: ' + (response.correlationId || 'N/A').substring(0,16)}</div>
+        </div>
+      </div>`;
+    }).join('');
+
+    if (response.conflict?.detected) {
+      $('conflict-box').style.display = 'block';
+      $('conflict-detail').textContent = `Policy: ${response.conflict.policyApplied} — Winner: ${response.conflict.winner}. ${response.conflict.reason}`;
+    } else {
+      $('conflict-box').style.display = 'none';
+    }
+  }
+
+  // ── TOAST & LOG ──
+  function toast(msg) {
+    $('toast').textContent = msg;
+    $('toast').classList.add('show');
+    setTimeout(() => $('toast').classList.remove('show'), 3000);
+  }
+
+  function log(level, msg) {
+    const line = document.createElement('div');
+    line.className = 'log-line';
+    const t = new Date().toLocaleTimeString();
+    line.innerHTML = `<span>${t}</span><b class="${level}">${level}</b><span>${msg}</span>`;
+    const stream = $('stream');
+    stream.insertBefore(line, stream.firstChild);
+  }
+
+  // ── API ──
+  async function api(path, opts = {}) {
+    const res = await fetch(API + path, { headers: { 'Content-Type': 'application/json' }, ...opts });
+    if (!res.ok) throw new Error(await res.text() || res.status);
+    return res.json();
+  }
+
+  async function refreshStats() {
+    try {
+      const s = await api('/dashboard/stats');
+      $('api-state').textContent = 'API connected';
+      $('api-pulse').classList.remove('red');
+      $('m-total').textContent = s.auditEntries ?? 0;
+      $('m-success').textContent = s.successfulPropagations ?? 0;
+      $('m-conflict').textContent = s.conflictsResolved ?? 0;
+      $('m-rate').textContent = (s.successRate?.toFixed(1) ?? '0.0') + '%';
+      $('m-updated').textContent = 'Updated ' + new Date(s.lastUpdated).toLocaleTimeString();
+    } catch {
+      $('api-state').textContent = 'Start Spring Boot app';
+      $('api-pulse').classList.add('red');
+    }
+  }
+
+  // ── SCENARIOS ──
+  async function runSws() {
+    setBusy(true); resetPipeline();
+    $('results-grid').innerHTML = '';
+    $('conflict-box').style.display = 'none';
+    addFlowStep('SWS service request received', `UBID ${selectedUbid} updates registered address in Karnataka SWS.`, 0);
+    await activatePipe(1);
+    addFlowStep('OmniSync resolves UBID across systems', 'The middleware looks up all department records matching this UBID.', 1);
+    await activatePipe(2);
+    addFlowStep('Idempotency check — no duplicate writes', 'A deterministic idempotency key prevents the same change being applied twice on retry.', 2);
+    await activatePipe(3);
+    addFlowStep('Schema adapters translate the payload', 'One SWS canonical event → SOAP/XML (Shops), SQL UPDATE (Factories), REST JSON (GST, Labour).', 3);
+    await activatePipe(4);
+    try {
+      const r = await api('/sws/event', { method: 'POST', body: JSON.stringify({
+        ubid: selectedUbid, eventType: $('event-type').value,
+        timestamp: new Date().toISOString(),
+        payload: { registered_address: { line1: $('address-line').value, city: 'Bengaluru', state: 'Karnataka', pin: '560001' }}
+      })});
+      addFlowStep('Department writes confirmed + audit written', 'Each target system confirms the write. Audit entries logged with correlation ID.', 4);
+      await activatePipe(5);
+      renderResults(r);
+      log('SYNC', `SWS→Depts completed for ${selectedUbid}: ${r.message}`);
+      await refreshStats();
+      await loadAuditByUbid(selectedUbid);
+    } catch (e) { toast('SWS scenario failed: ' + e.message); log('ERR', e.message); }
+    finally { setBusy(false); }
+  }
+
+  async function runDept() {
+    setBusy(true); resetPipeline();
+    $('results-grid').innerHTML = '';
+    $('conflict-box').style.display = 'none';
+    const dept = $('department').value;
+    addFlowStep('Department update discovered', `${dept} changes authorised signatory directly in its legacy system.`, 0);
+    await activatePipe(1);
+    addFlowStep('Sidecar or webhook picks up the change', 'OmniSync discovers the delta without requiring any changes to the department codebase.', 1);
+    await activatePipe(2);
+    addFlowStep('UBID resolves the department record', 'The department-specific ID is cross-referenced to the UBID via the adapter index.', 2);
+    await activatePipe(3);
+    addFlowStep('Payload translated into SWS canonical format', 'Department-specific field names mapped back to the SWS schema via mapping.json.', 3);
+    await activatePipe(4);
+    try {
+      const r = await api('/dept/event', { method: 'POST', body: JSON.stringify({
+        ubid: selectedUbid, departmentId: dept,
+        eventType: 'SIGNATORY_CHANGE',
+        timestamp: new Date().toISOString(),
+        payload: { authorised_signatory_name: $('signatory').value, authorised_signatory: $('signatory').value, source_department_reference: 'FACT-KA-00192' }
+      })});
+      addFlowStep('SWS updated and audit trail written', 'The change is visible in SWS with a complete trace back to the source department.', 4);
+      await activatePipe(5);
+      renderResults(r);
+      log('SYNC', `Dept→SWS completed for ${selectedUbid}: ${r.message}`);
+      await refreshStats();
+      await loadAuditByUbid(selectedUbid);
+    } catch (e) { toast('Dept scenario failed: ' + e.message); log('ERR', e.message); }
+    finally { setBusy(false); }
+  }
+
+  async function runConflict() {
+    setBusy(true); resetPipeline();
+    $('results-grid').innerHTML = '';
+    addFlowStep('Two updates arrive nearly simultaneously', `SWS changes address; Factories changes signatory — both for ${selectedUbid}.`, 0);
+    await activatePipe(1);
+    addFlowStep('Conflict window opens (configurable threshold)', 'The policy engine sees two source systems touching the same UBID within the time window.', 1);
+    await activatePipe(2);
+    addFlowStep('Resolution policy applied', 'SWS wins canonical identity fields (address); Factories wins operational fields (signatory) — merge policy.', 2);
+    await activatePipe(3);
+    addFlowStep('Decision written to the immutable ledger', 'The audit trail explains the final state — not a silent overwrite.', 3);
+    try {
+      const [r1, r2] = await Promise.allSettled([
+        api('/sws/event', { method: 'POST', body: JSON.stringify({ ubid: selectedUbid, eventType: 'ADDRESS_UPDATE', timestamp: new Date().toISOString(), payload: { registered_address: { line1: $('address-line').value, city: 'Bengaluru', state: 'Karnataka', pin: '560001' }}})}),
+        api('/dept/event', { method: 'POST', body: JSON.stringify({ ubid: selectedUbid, departmentId: 'factories', eventType: 'SIGNATORY_CHANGE', timestamp: new Date(Date.now()+1).toISOString(), payload: { authorised_signatory_name: $('signatory').value, authorised_signatory: $('signatory').value, source_department_reference: 'FACT-KA-00192' }})})
+      ]);
+      const last = [r1, r2].filter(r => r.status === 'fulfilled').map(r => r.value).pop() || { status: 'FAILED', message: 'No response' };
+      addFlowStep('Conflict resolved — audit entry explains why', 'Both changes accounted for; final state is explainable and reversible from the ledger.', 4);
+      await activatePipe(4);
+      await activatePipe(5);
+      renderResults(last);
+      log('WARN', `Conflict run completed for ${selectedUbid}. See audit for CONFLICT_RESOLVED entries.`);
+      await refreshStats();
+      await loadAuditByUbid(selectedUbid);
+    } catch (e) { toast('Conflict scenario failed: ' + e.message); log('ERR', e.message); }
+    finally { setBusy(false); }
+  }
+
+  function setBusy(v) {
+    ['run-sws', 'run-dept', 'run-conflict'].forEach(id => $(id).disabled = v);
+  }
+
+  // ── SCHEMA ──
+  function renderSchema() {
+    const ubid = selectedUbid || 'KA-BIZ-00192';
+    const canonical = { ubid, eventType: 'ADDRESS_UPDATE', timestamp: '2026-05-04T10:42:31Z', payload: { registered_address: { line1: $('address-line')?.value || '12 MG Road, Bengaluru', city: 'Bengaluru', state: 'Karnataka', pin: '560001' }}};
+    const sel = $('schema-dept').value;
+    $('schema-input').textContent = JSON.stringify(canonical, null, 2);
+    $('schema-map').textContent = JSON.stringify(schemas[sel].map, null, 2);
+    $('schema-output').textContent = schemas[sel].output;
+  }
+
+  // ── AUDIT ──
+  function renderLedger(rows) {
+    if (!rows.length) {
+      $('ledger').innerHTML = `<div class="empty"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>No audit entries yet. Run a scenario above to create propagation records.</div>`;
+      return;
+    }
+    const ordered = [...rows].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 100);
+    $('ledger').innerHTML = `<div class="ledger-row header"><div>Time</div><div>UBID</div><div>Event / Route</div><div>Outcome</div></div>` +
+      ordered.map(r => {
+        const chip = r.outcome === 'SUCCESS' ? 'green' : r.outcome === 'CONFLICT_RESOLVED' ? 'warn' : r.outcome === 'FAILED' ? 'red' : 'purple';
+        const route = r.sourceSystem && r.targetSystem ? `${r.sourceSystem} → ${r.targetSystem}` : (r.description || r.eventType || '—');
+        return `<div class="ledger-row">
+          <div class="ledger-time">${new Date(r.timestamp).toLocaleTimeString()}</div>
+          <div class="ledger-ubid">${r.ubid}</div>
+          <div class="ledger-event">${r.eventType || '—'}<div style="font-size:11px;color:var(--text3);margin-top:2px;">${route}</div></div>
+          <div><span class="chip ${chip}">${r.outcome}</span></div>
+        </div>`;
+      }).join('');
+  }
+
+  async function loadAuditByUbid(ubid) {
+    ubid = ubid || $('audit-ubid').value.trim();
+    try { renderLedger(await api('/audit/ubid/' + encodeURIComponent(ubid))); }
+    catch (e) { toast('Audit load failed: ' + e.message); }
+  }
+
+  async function loadAllAudit() {
+    try { renderLedger(await api('/audit/all')); }
+    catch (e) { toast('Audit load failed: ' + e.message); }
+  }
+
+  // ── INIT ──
+  renderBizList();
+  renderDeptList();
+  refreshStats();
+  setInterval(refreshStats, 15000);
+
+  $('run-sws').addEventListener('click', runSws);
+  $('run-dept').addEventListener('click', runDept);
+  $('run-conflict').addEventListener('click', runConflict);
+  $('schema-dept').addEventListener('change', renderSchema);
+  $('load-ubid').addEventListener('click', () => loadAuditByUbid($('audit-ubid').value.trim()));
+  $('load-all').addEventListener('click', loadAllAudit);
+</script>
+</body>
+</html>

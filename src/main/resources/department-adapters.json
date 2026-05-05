@@ -1,0 +1,65 @@
+{
+  "departments": [
+    {
+      "id": "shops_establishment",
+      "name": "Shops & Establishments",
+      "protocol": "SOAP",
+      "baseUrl": "http://mock-shops.karnataka.gov.in/ws",
+      "ubidfPrefix": "SE-KA-",
+      "fieldMappings": {
+        "registered_address.line1": "NewAddress.AddressLine1",
+        "registered_address.city": "NewAddress.City",
+        "registered_address.state": "NewAddress.StateName",
+        "registered_address.pin": "NewAddress.PINCode",
+        "authorised_signatory": "AuthSignatory.Name"
+      },
+      "supportsWebhook": false,
+      "pollingEnabled": true,
+      "pollingIntervalMs": 15000
+    },
+    {
+      "id": "factories",
+      "name": "Factories Department",
+      "protocol": "SQL_API",
+      "baseUrl": "http://mock-factories.karnataka.gov.in/api",
+      "ubidField": "factory_ubid",
+      "fieldMappings": {
+        "registered_address.line1": "address_line1",
+        "registered_address.city": "address_city",
+        "registered_address.pin": "address_pin",
+        "authorised_signatory": "authorised_signatory_name"
+      },
+      "supportsWebhook": false,
+      "pollingEnabled": true,
+      "pollingIntervalMs": 20000
+    },
+    {
+      "id": "gst",
+      "name": "GST Department",
+      "protocol": "REST",
+      "baseUrl": "http://mock-gst.karnataka.gov.in/taxpayerapi/v2.0",
+      "ubidIndexField": "gstin",
+      "fieldMappings": {
+        "registered_address.line1": "prncipalPlaceBusiness.addrBnm",
+        "registered_address.city": "prncipalPlaceBusiness.addrCity",
+        "registered_address.pin": "prncipalPlaceBusiness.addrPncd"
+      },
+      "supportsWebhook": true,
+      "pollingEnabled": false
+    },
+    {
+      "id": "labour",
+      "name": "Labour Department",
+      "protocol": "REST",
+      "baseUrl": "http://mock-labour.karnataka.gov.in/api/v1",
+      "ubidField": "establishment_ubid",
+      "fieldMappings": {
+        "registered_address.line1": "office_address",
+        "authorised_signatory": "contact_person"
+      },
+      "supportsWebhook": false,
+      "pollingEnabled": true,
+      "pollingIntervalMs": 30000
+    }
+  ]
+}
